@@ -195,7 +195,7 @@ export default function ChatInterface() {
                         </span>
                       )}
                     </div>
-                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                    <div className="space-y-2  overflow-y-auto">
                       {message.data.results.map((entry, index) => renderEntryCard(entry, index))}
                     </div>
                   </div>
@@ -227,48 +227,48 @@ export default function ChatInterface() {
         <div className="p-6">
           <div className="relative">
             {/* Suggested Messages */}
-            <div className="absolute -top-12 left-0 right-0 flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+            <div className="absolute -top-10 left-4 right-0 flex gap-2 overflow-x-auto scrollbar-hide pb-2">
               <button
                 onClick={() => setInput('Show all Instagram links')}
-                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                className="flex-shrink-0 px-3 py-1.5 shadow opacity-75 hover:opacity-100 cursor-pointer text-xs bg-white/30 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
                 disabled={isLoading}
               >
-                📸 Instagram links
+                Instagram links
               </button>
               <button
                 onClick={() => setInput('Sort by date')}
-                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                className="flex-shrink-0 px-3 py-1.5 shadow opacity-75 hover:opacity-100 cursor-pointer text-xs bg-white/30 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
                 disabled={isLoading}
               >
-                📅 Sort by date
+                Sort by date
               </button>
               <button
                 onClick={() => setInput('Get all email addresses')}
-                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                className="flex-shrink-0 px-3 py-1.5 shadow opacity-75 hover:opacity-100 cursor-pointer text-xs bg-white/30 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
                 disabled={isLoading}
               >
-                📧 Email addresses
+                Email addresses
               </button>
               <button
                 onClick={() => setInput('Show Telegram IDs')}
-                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                className="flex-shrink-0 px-3 py-1.5 shadow opacity-75 hover:opacity-100 cursor-pointer text-xs bg-white/30 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
                 disabled={isLoading}
               >
-                💬 Telegram IDs
+                Telegram IDs
               </button>
               <button
                 onClick={() => setInput('Who submitted first?')}
-                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                className="flex-shrink-0 px-3 py-1.5 shadow opacity-75 hover:opacity-100 cursor-pointer text-xs bg-white/30 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
                 disabled={isLoading}
               >
-                🏆 First submission
+                First submission
               </button>
               <button
                 onClick={() => setInput('Count total entries')}
-                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                className="flex-shrink-0 px-3 py-1.5 shadow opacity-75 hover:opacity-100 cursor-pointer text-xs bg-white/30 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
                 disabled={isLoading}
               >
-                🔢 Total count
+                Total count
               </button>
             </div>
 
