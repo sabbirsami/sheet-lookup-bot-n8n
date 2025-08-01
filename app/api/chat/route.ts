@@ -5,7 +5,7 @@ export async function POST(request: NextRequest) {
     const { message } = await request.json();
 
     // Use your actual n8n webhook URL
-    const n8nWebhookUrl = 'https://sabbirsami.app.n8n.cloud/webhook-test/chat';
+    const n8nWebhookUrl = 'https://sabbirsami.app.n8n.cloud/webhook/chat';
 
     const response = await fetch(n8nWebhookUrl, {
       method: 'POST',
