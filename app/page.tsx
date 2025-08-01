@@ -10,9 +10,24 @@ import { useEffect, useRef, useState } from 'react';
 
 interface InstagramEntry {
   date?: string;
-  instagram?: string;
+  instagram_account?: string;
   email?: string;
-  telegram?: string;
+  telegram_username?: string;
+  country?: string;
+  followers?: number;
+  post_type?: string;
+  reward_status?: string;
+  engagement_rate?: string;
+  language?: string;
+  age?: number;
+  gender?: string;
+  platform_joined?: string;
+  bio_category?: string;
+  verification_status?: string;
+  payment_amount?: string;
+  submission_time?: string;
+  review_date?: string;
+  reviewer_notes?: string;
 }
 
 interface ApiResponse {
@@ -34,7 +49,7 @@ export default function ChatInterface() {
       id: '1',
       type: 'assistant',
       content:
-        'Hello! I can help you query Instagram entries from your APPICS bounty campaign data. You can ask me to:\n\n• Show Instagram links\n• Get email addresses or Telegram IDs\n• Sort entries by date\n• Find who submitted first\n• Search for specific users\n• Or ask me anything else about the data!',
+        'Hello! I can help you query Instagram entries from your APPICS bounty campaign data. You can ask me to:\n\n• Show Instagram accounts and links\n• Get email addresses or Telegram usernames\n• Sort entries by date chronologically\n• Find who submitted first/last\n• Search by country, language, or category\n• Get statistics and analytics\n• Or ask me anything else about the campaign data!',
       timestamp: new Date(),
     },
   ]);
@@ -119,16 +134,16 @@ export default function ChatInterface() {
             <span className="text-gray-600">{entry.date}</span>
           </div>
         )}
-        {entry.instagram && (
+        {entry.instagram_account && (
           <div>
             <span className="font-medium text-gray-700">Instagram:</span>
             <a
-              href={entry.instagram}
+              href={entry.instagram_account}
               target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline ml-1 break-all"
             >
-              {entry.instagram}
+              {entry.instagram_account}
             </a>
           </div>
         )}
@@ -138,10 +153,112 @@ export default function ChatInterface() {
             <span className="text-gray-600">{entry.email}</span>
           </div>
         )}
-        {entry.telegram && (
+        {entry.telegram_username && (
           <div>
             <span className="font-medium text-gray-700">Telegram:</span>{' '}
-            <span className="text-gray-600">@{entry.telegram}</span>
+            <span className="text-gray-600">@{entry.telegram_username}</span>
+          </div>
+        )}
+        {entry.country && (
+          <div>
+            <span className="font-medium text-gray-700">Country:</span>{' '}
+            <span className="text-gray-600">{entry.country}</span>
+          </div>
+        )}
+        {entry.followers && (
+          <div>
+            <span className="font-medium text-gray-700">Followers:</span>{' '}
+            <span className="text-gray-600">{entry.followers.toLocaleString()}</span>
+          </div>
+        )}
+        {entry.reward_status && (
+          <div>
+            <span className="font-medium text-gray-700">Status:</span>{' '}
+            <span
+              className={`text-xs px-2 py-1 rounded-full ${
+                entry.reward_status === 'Paid'
+                  ? 'bg-green-100 text-green-800'
+                  : entry.reward_status === 'Pending'
+                  ? 'bg-yellow-100 text-yellow-800'
+                  : 'bg-red-100 text-red-800'
+              }`}
+            >
+              {entry.reward_status}
+            </span>
+          </div>
+        )}
+        {entry.payment_amount && entry.reward_status === 'Paid' && (
+          <div>
+            <span className="font-medium text-gray-700">Payment:</span>{' '}
+            <span className="text-green-600 font-medium">{entry.payment_amount}</span>
+          </div>
+        )}
+        {entry.bio_category && (
+          <div>
+            <span className="font-medium text-gray-700">Category:</span>{' '}
+            <span className="text-gray-600">{entry.bio_category}</span>
+          </div>
+        )}
+        {entry.engagement_rate && (
+          <div>
+            <span className="font-medium text-gray-700">Engagement:</span>{' '}
+            <span className="text-gray-600">{entry.engagement_rate}</span>
+          </div>
+        )}
+        {entry.language && (
+          <div>
+            <span className="font-medium text-gray-700">Language:</span>{' '}
+            <span className="text-gray-600">{entry.language}</span>
+          </div>
+        )}
+        {entry.age && (
+          <div>
+            <span className="font-medium text-gray-700">Age:</span>{' '}
+            <span className="text-gray-600">{entry.age}</span>
+          </div>
+        )}
+        {entry.gender && (
+          <div>
+            <span className="font-medium text-gray-700">Gender:</span>{' '}
+            <span className="text-gray-600">{entry.gender}</span>
+          </div>
+        )}
+        {entry.verification_status && (
+          <div>
+            <span className="font-medium text-gray-700">Verified:</span>{' '}
+            <span
+              className={`text-xs px-2 py-1 rounded-full ${
+                entry.verification_status === 'Verified'
+                  ? 'bg-blue-100 text-blue-800'
+                  : 'bg-gray-100 text-gray-800'
+              }`}
+            >
+              {entry.verification_status}
+            </span>
+          </div>
+        )}
+        {entry.platform_joined && (
+          <div>
+            <span className="font-medium text-gray-700">Joined:</span>{' '}
+            <span className="text-gray-600">{entry.platform_joined}</span>
+          </div>
+        )}
+        {entry.post_type && (
+          <div>
+            <span className="font-medium text-gray-700">Post Type:</span>{' '}
+            <span className="text-gray-600">{entry.post_type}</span>
+          </div>
+        )}
+        {entry.submission_time && (
+          <div>
+            <span className="font-medium text-gray-700">Submitted:</span>{' '}
+            <span className="text-gray-600">{entry.submission_time}</span>
+          </div>
+        )}
+        {entry.reviewer_notes && (
+          <div>
+            <span className="font-medium text-gray-700">Notes:</span>{' '}
+            <span className="text-gray-600 italic">{entry.reviewer_notes}</span>
           </div>
         )}
       </div>
@@ -195,7 +312,7 @@ export default function ChatInterface() {
                         </span>
                       )}
                     </div>
-                    <div className="space-y-2  overflow-y-auto">
+                    <div className="space-y-2 max-h-96 overflow-y-auto">
                       {message.data.results.map((entry, index) => renderEntryCard(entry, index))}
                     </div>
                   </div>
@@ -229,14 +346,14 @@ export default function ChatInterface() {
             {/* Suggested Messages */}
             <div className="absolute -top-10 left-4 right-0 flex gap-2 overflow-x-auto scrollbar-hide pb-2">
               <button
-                onClick={() => setInput('Show all Instagram links')}
+                onClick={() => setInput('Show all Instagram accounts')}
                 className="flex-shrink-0 px-3 py-1.5 shadow opacity-75 hover:opacity-100 cursor-pointer text-xs bg-white/30 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
                 disabled={isLoading}
               >
-                Instagram links
+                Instagram accounts
               </button>
               <button
-                onClick={() => setInput('Sort by date')}
+                onClick={() => setInput('Sort all entries by date chronologically')}
                 className="flex-shrink-0 px-3 py-1.5 shadow opacity-75 hover:opacity-100 cursor-pointer text-xs bg-white/30 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
                 disabled={isLoading}
               >
@@ -250,11 +367,11 @@ export default function ChatInterface() {
                 Email addresses
               </button>
               <button
-                onClick={() => setInput('Show Telegram IDs')}
+                onClick={() => setInput('Show all Telegram usernames')}
                 className="flex-shrink-0 px-3 py-1.5 shadow opacity-75 hover:opacity-100 cursor-pointer text-xs bg-white/30 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
                 disabled={isLoading}
               >
-                Telegram IDs
+                Telegram usernames
               </button>
               <button
                 onClick={() => setInput('Who submitted first?')}
@@ -264,11 +381,11 @@ export default function ChatInterface() {
                 First submission
               </button>
               <button
-                onClick={() => setInput('Count total entries')}
+                onClick={() => setInput('Show payment statistics')}
                 className="flex-shrink-0 px-3 py-1.5 shadow opacity-75 hover:opacity-100 cursor-pointer text-xs bg-white/30 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
                 disabled={isLoading}
               >
-                Total count
+                Payment stats
               </button>
             </div>
 
@@ -276,7 +393,7 @@ export default function ChatInterface() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me about Instagram entries, dates, emails, Telegram IDs..."
+              placeholder="Ask me about Instagram accounts, payments, countries, dates, categories..."
               className="w-full rounded-2xl border-0 bg-white shadow-lg pl-4 pr-20 py-8 text-sm focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               disabled={isLoading}
             />
