@@ -312,7 +312,7 @@ export default function ChatInterface() {
                         </span>
                       )}
                     </div>
-                    <div className="space-y-2 max-h-96 overflow-y-auto">
+                    <div className="space-y-2 overflow-y-auto">
                       {message.data.results.map((entry, index) => renderEntryCard(entry, index))}
                     </div>
                   </div>
