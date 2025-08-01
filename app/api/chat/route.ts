@@ -13,7 +13,6 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        // Remove the nested 'body' structure - send the message directly
         message: message,
       }),
     });
@@ -24,57 +23,101 @@ export async function POST(request: NextRequest) {
 
     const data = await response.text();
 
-    // Try to parse as JSON first (for structured responses)
+    // Parse the response
     let parsedData;
     try {
       parsedData = JSON.parse(data);
-
-      // Handle n8n response structure with 'output' field
-      if (parsedData.output) {
-        // Extract JSON from markdown code block if present
-        let jsonString = parsedData.output;
-        if (jsonString.includes('```json')) {
-          jsonString = jsonString.replace(/```json\n?/, '').replace(/\n?```$/, '');
-        }
-
-        try {
-          const extractedData = JSON.parse(jsonString);
-          if (extractedData.entries) {
-            return NextResponse.json({
-              content: `Found ${extractedData.entries.length} Instagram entries:`,
-              entries: extractedData.entries,
-            });
-          }
-        } catch (innerError) {
-          console.error('Error parsing extracted JSON:', innerError);
-          return NextResponse.json({
-            content: parsedData.output || 'Received response from workflow',
-          });
-        }
-      }
-
-      // If the response contains entries directly, return them structured
-      if (parsedData.entries) {
-        return NextResponse.json({
-          content: `Found ${parsedData.entries.length} Instagram entries:`,
-          entries: parsedData.entries,
-        });
-      }
     } catch (e) {
       // If not JSON, treat as plain text
-      parsedData = { content: data };
+      return NextResponse.json({
+        content: data,
+      });
     }
 
-    return NextResponse.json(parsedData);
+    // Handle n8n response structure with 'output' field
+    if (parsedData.output) {
+      let content = parsedData.output;
+      let structuredData = null;
+
+      // Check if the output contains JSON in markdown code blocks
+      const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/);
+      if (jsonMatch) {
+        try {
+          const extractedJson = JSON.parse(jsonMatch[1]);
+
+          // If it's a results structure, extract it
+          if (extractedJson.results) {
+            structuredData = extractedJson;
+
+            // Create a more natural response message
+            if (extractedJson.results.length > 0) {
+              const resultCount = extractedJson.total_found || extractedJson.results.length;
+
+              // Determine what type of data we're showing
+              const firstResult = extractedJson.results[0];
+              let dataType = 'entries';
+
+              if (firstResult.instagram && !firstResult.email && !firstResult.telegram) {
+                dataType = 'Instagram accounts';
+              } else if (firstResult.email && !firstResult.instagram && !firstResult.telegram) {
+                dataType = 'email addresses';
+              } else if (firstResult.telegram && !firstResult.instagram && !firstResult.email) {
+                dataType = 'Telegram IDs';
+              }
+
+              content = `Here are ${resultCount} ${dataType} I found:`;
+            } else {
+              content = 'No matching entries found.';
+            }
+          } else {
+            // For other JSON structures, just show a generic message
+            content = content.replace(/```json[\s\S]*?```/g, '').trim() || 'Here are the results:';
+            structuredData = extractedJson;
+          }
+        } catch (jsonError) {
+          console.error('Error parsing extracted JSON:', jsonError);
+          // Remove the JSON block and show the remaining text
+          content = content.replace(/```json[\s\S]*?```/g, '').trim();
+        }
+      }
+
+      return NextResponse.json({
+        content: content || 'I processed your request.',
+        data: structuredData,
+      });
+    }
+
+    // Handle direct structured responses
+    if (parsedData.results || parsedData.entries) {
+      const results = parsedData.results || parsedData.entries;
+      const count = parsedData.total_found || results.length;
+
+      return NextResponse.json({
+        content: `Found ${count} entries:`,
+        data: {
+          results: results,
+          total_found: count,
+        },
+      });
+    }
+
+    // Handle simple text responses
+    if (parsedData.content || parsedData.message) {
+      return NextResponse.json({
+        content: parsedData.content || parsedData.message,
+      });
+    }
+
+    // Fallback for other response structures
+    return NextResponse.json({
+      content: JSON.stringify(parsedData, null, 2),
+    });
   } catch (error) {
     console.error('Error in chat API:', error);
     return NextResponse.json(
       {
         content: 'Sorry, I encountered an error processing your request. Please try again.',
-        error:
-          typeof error === 'object' && error !== null && 'message' in error
-            ? (error as { message: string }).message
-            : String(error),
+        error: error instanceof Error ? error.message : String(error),
       },
       { status: 500 },
     );

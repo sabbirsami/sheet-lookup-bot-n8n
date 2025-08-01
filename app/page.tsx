@@ -9,17 +9,22 @@ import { Loader2, Plus, Send } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 
 interface InstagramEntry {
-  date: string;
-  instagram: string;
-  email: string;
-  telegram: string;
+  date?: string;
+  instagram?: string;
+  email?: string;
+  telegram?: string;
+}
+
+interface ApiResponse {
+  results?: InstagramEntry[];
+  total_found?: number;
 }
 
 interface ChatMessage {
   id: string;
   type: 'user' | 'assistant';
   content: string;
-  entries?: InstagramEntry[];
+  data?: ApiResponse;
   timestamp: Date;
 }
 
@@ -29,7 +34,7 @@ export default function ChatInterface() {
       id: '1',
       type: 'assistant',
       content:
-        'Hello! I can help you query Instagram entries from your Google Sheet. Ask me about dates, emails, Telegram IDs, or request a list of entries.',
+        'Hello! I can help you query Instagram entries from your APPICS bounty campaign data. You can ask me to:\n\n• Show Instagram links\n• Get email addresses or Telegram IDs\n• Sort entries by date\n• Find who submitted first\n• Search for specific users\n• Or ask me anything else about the data!',
       timestamp: new Date(),
     },
   ]);
@@ -65,7 +70,6 @@ export default function ChatInterface() {
     setIsLoading(true);
 
     try {
-      // Replace with your actual n8n webhook URL
       const response = await fetch('/api/chat', {
         method: 'POST',
         headers: {
@@ -79,8 +83,8 @@ export default function ChatInterface() {
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
-        content: data.content || 'I received your request and processed it.',
-        entries: data.entries,
+        content: data.content || data.message || 'I processed your request.',
+        data: data.data,
         timestamp: new Date(),
       };
 
@@ -106,12 +110,53 @@ export default function ChatInterface() {
     }
   };
 
+  const renderEntryCard = (entry: InstagramEntry, index: number) => (
+    <Card key={index} className="p-3 bg-gray-50 border-l-4 border-l-blue-400">
+      <div className="space-y-1 text-xs">
+        {entry.date && (
+          <div>
+            <span className="font-medium text-gray-700">Date:</span>{' '}
+            <span className="text-gray-600">{entry.date}</span>
+          </div>
+        )}
+        {entry.instagram && (
+          <div>
+            <span className="font-medium text-gray-700">Instagram:</span>
+            <a
+              href={entry.instagram}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-blue-600 hover:underline ml-1 break-all"
+            >
+              {entry.instagram}
+            </a>
+          </div>
+        )}
+        {entry.email && (
+          <div>
+            <span className="font-medium text-gray-700">Email:</span>{' '}
+            <span className="text-gray-600">{entry.email}</span>
+          </div>
+        )}
+        {entry.telegram && (
+          <div>
+            <span className="font-medium text-gray-700">Telegram:</span>{' '}
+            <span className="text-gray-600">@{entry.telegram}</span>
+          </div>
+        )}
+      </div>
+    </Card>
+  );
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-100 via-pink-50 to-indigo-100">
       <div className="container mx-auto max-w-4xl h-screen flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b mb-6">
-          <h1 className="text-xl font-light text-gray-800">Instagram Entries Assistant</h1>
+          <div>
+            <h1 className="text-xl font-light text-gray-800">APPICS Instagram Assistant</h1>
+            <p className="text-sm text-gray-500">Bounty Campaign Data Helper</p>
+          </div>
           <Button variant="outline" className="rounded-full bg-transparent">
             <Plus className="w-4 h-4 mr-2" />
             Add Files
@@ -129,46 +174,30 @@ export default function ChatInterface() {
               className={`flex ${message.type === 'user' ? 'justify-end' : 'justify-start'}`}
             >
               <div
-                className={`max-w-[80%] rounded-2xl px-4 py-3 ${
+                className={`max-w-[85%] rounded-2xl px-4 py-3 ${
                   message.type === 'user'
                     ? 'bg-blue-500 text-white'
                     : 'bg-white text-gray-800 shadow-sm border'
                 }`}
               >
-                <p className="text-sm leading-relaxed">{message.content}</p>
+                <div className="text-sm leading-relaxed whitespace-pre-line">{message.content}</div>
 
-                {/* Display Instagram entries if available */}
-                {message.entries && message.entries.length > 0 && (
-                  <div className="mt-3 space-y-2">
-                    <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
-                      Instagram Entries ({message.entries.length})
-                    </p>
-                    {message.entries.map((entry, index) => (
-                      <Card key={index} className="p-3 bg-gray-50">
-                        <div className="space-y-1 text-xs">
-                          <div>
-                            <span className="font-medium">Date:</span> {entry.date}
-                          </div>
-                          <div>
-                            <span className="font-medium">Instagram:</span>
-                            <a
-                              href={entry.instagram}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:underline ml-1"
-                            >
-                              {entry.instagram}
-                            </a>
-                          </div>
-                          <div>
-                            <span className="font-medium">Email:</span> {entry.email}
-                          </div>
-                          <div>
-                            <span className="font-medium">Telegram:</span> @{entry.telegram}
-                          </div>
-                        </div>
-                      </Card>
-                    ))}
+                {/* Display structured data if available */}
+                {message.data?.results && message.data.results.length > 0 && (
+                  <div className="mt-4 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <p className="text-xs font-medium text-gray-600 uppercase tracking-wide">
+                        Results
+                      </p>
+                      {message.data.total_found && (
+                        <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded-full">
+                          {message.data.total_found} found
+                        </span>
+                      )}
+                    </div>
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
+                      {message.data.results.map((entry, index) => renderEntryCard(entry, index))}
+                    </div>
                   </div>
                 )}
 
@@ -183,8 +212,8 @@ export default function ChatInterface() {
             <div className="flex justify-start">
               <div className="bg-white rounded-2xl px-4 py-3 shadow-sm border">
                 <div className="flex items-center space-x-2">
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  <span className="text-sm text-gray-600">Thinking...</span>
+                  <Loader2 className="w-4 h-4 animate-spin text-blue-500" />
+                  <span className="text-sm text-gray-600">Processing your query...</span>
                 </div>
               </div>
             </div>
@@ -201,7 +230,7 @@ export default function ChatInterface() {
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={handleKeyPress}
-              placeholder="Ask me anything about Instagram entries..."
+              placeholder="Ask me about Instagram entries, dates, emails, Telegram IDs..."
               className="w-full rounded-2xl border-0 bg-white shadow-lg pl-4 pr-20 py-8 text-sm focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
               disabled={isLoading}
             />

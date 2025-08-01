@@ -1,0 +1,151 @@
+{
+  "name": "Instagram Entries Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "sheets",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-400, 0],
+      "id": "92012fc9-a73b-4586-aa09-e04b144dee55",
+      "name": "Webhook Trigger",
+      "webhookId": "967d94cf-40d1-4f0d-ab3c-952c4b5ff7e3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.message || $json.body.query || $json.body.text }}",
+        "options": {
+          "systemMessage": "You are a helpful assistant for the APPICS Instagram Special Bounty campaign database. You can answer queries about Instagram entries, participant data, and submission information.\n\nYou have access to 'Fetch Instagram Entries from Sheet' containing data about:\n- Instagram account URLs\n- Email addresses \n- Telegram usernames\n- Submission dates (from Dec 2017 to Oct 2019)\n- Entry order and chronology\n\n**Query Types You Handle:**\n1. **Data Requests**: Instagram links, emails, Telegram IDs, dates\n2. **Sorting/Filtering**: Sort by date, find first/last entries, chronological order\n3. **Search**: Find specific users, accounts, or timeframes\n4. **Analytics**: Count entries, date ranges, statistics\n5. **Personal Questions**: Answer conversationally about the data\n\n**Response Format Rules:**\n- **Lists/Multiple Results**: Always use JSON format:\n```json\n{\n  \"results\": [\n    {\n      \"date\": \"Jan 19, 2018\",\n      \"instagram\": \"https://www.instagram.com/theglobopreneur/\",\n      \"email\": \"oluolu.gbenro@gmail.com\",\n      \"telegram\": \"username\"\n    }\n  ],\n  \"total_found\": 1\n}\n```\n\n- **Single Results**: Natural language with specific answer\n- **Conversational**: Friendly responses for greetings, thanks, general questions\n- **Sorting**: When asked to sort by date or find \"first/earliest\", organize chronologically\n\n**Example Responses:**\n- \"Show Instagram links\" → JSON list with instagram URLs\n- \"Who submitted first?\" → Find earliest date, return that entry\n- \"Sort by date\" → JSON with entries in chronological order\n- \"How many entries?\" → Count and explain\n- \"Hello\" → Friendly greeting explaining capabilities\n\nAlways use the tool to get accurate data. Be conversational and helpful while providing precise information."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [0, 0],
+      "id": "9f98df40-ce8f-4ca6-9353-5b5510a8b1bf",
+      "name": "AI Assistant Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [-200, 200],
+      "id": "f351682c-323f-4b5d-8e75-12f631730ada",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "4gW5WSKRlsRU45u7",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [400, 0],
+      "id": "d6e0f604-6ac0-4959-b450-66e80a824ac8",
+      "name": "Send Response"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1rgU8zw9JJ_SnZBnyaZ3cFOt3ywLYc3Hc_fRVJEZdbl0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rgU8zw9JJ_SnZBnyaZ3cFOt3ywLYc3Hc_fRVJEZdbl0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1rgU8zw9JJ_SnZBnyaZ3cFOt3ywLYc3Hc_fRVJEZdbl0/edit#gid=0"
+        },
+        "options": {
+          "useAppend": false
+        }
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.6,
+      "position": [200, 200],
+      "id": "3ec24c4a-2885-4bee-977d-fb53d138cda2",
+      "name": "Fetch Instagram Entries from Sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oe3bDPjEBQZ7dKHE",
+          "name": "Google Sheets account 3"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Assistant Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Assistant Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Assistant Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Instagram Entries from Sheet": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Assistant Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "callerPolicy": "workflowsFromSameOwner"
+  },
+  "versionId": "19c801d7-b957-4c2d-8ba9-238ec5224c14",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "e1e25161edcb922a4ec53faf545a8791a0a8a87e3ae3aee193d5a9d80016605e"
+  },
+  "id": "AuwiTYhD0vx4Csfb",
+  "tags": []
+}
