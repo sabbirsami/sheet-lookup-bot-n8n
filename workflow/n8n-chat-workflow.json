@@ -4,7 +4,7 @@
     {
       "parameters": {
         "httpMethod": "POST",
-        "path": "sheets",
+        "path": "chat",
         "responseMode": "responseNode",
         "options": {}
       },

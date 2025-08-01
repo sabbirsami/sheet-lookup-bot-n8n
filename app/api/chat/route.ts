@@ -4,8 +4,8 @@ export async function POST(request: NextRequest) {
   try {
     const { message } = await request.json();
 
-    // Replace this URL with your actual n8n webhook URL
-    const n8nWebhookUrl = 'https://sabbirsami.app.n8n.cloud/webhook-test/sheets';
+    // Use your actual n8n webhook URL
+    const n8nWebhookUrl = 'https://sabbirsami.app.n8n.cloud/webhook-test/chat';
 
     const response = await fetch(n8nWebhookUrl, {
       method: 'POST',
@@ -18,97 +18,94 @@ export async function POST(request: NextRequest) {
     });
 
     if (!response.ok) {
-      throw new Error(`n8n webhook failed with status: ${response.status}`);
+      console.error(`n8n webhook failed with status: ${response.status}`);
+      return NextResponse.json(
+        {
+          content: `Sorry, the webhook service returned an error (${response.status}). Please try again.`,
+        },
+        { status: 500 },
+      );
     }
 
     const data = await response.text();
+    console.log('Raw n8n response:', data);
 
-    // Parse the response
+    // Try to parse as JSON
     let parsedData;
     try {
       parsedData = JSON.parse(data);
     } catch (e) {
-      // If not JSON, treat as plain text
+      console.log('Response is not JSON, treating as plain text');
       return NextResponse.json({
         content: data,
       });
     }
 
-    // Handle n8n response structure with 'output' field
-    if (parsedData.output) {
-      let content = parsedData.output;
-      let structuredData = null;
+    console.log('Parsed n8n data:', parsedData);
 
-      // Check if the output contains JSON in markdown code blocks
-      const jsonMatch = content.match(/```json\n?([\s\S]*?)\n?```/);
+    // Handle the exact format you showed: { "output": "```json\n{...}\n```" }
+    if (parsedData.output) {
+      const content = parsedData.output;
+
+      // Extract JSON from markdown code blocks
+      const jsonMatch = content.match(/```json\s*\n?([\s\S]*?)\n?\s*```/);
       if (jsonMatch) {
         try {
-          const extractedJson = JSON.parse(jsonMatch[1]);
+          const jsonString = jsonMatch[1].trim();
+          console.log('Extracted JSON string:', jsonString);
 
-          // If it's a results structure, extract it
-          if (extractedJson.results) {
-            structuredData = extractedJson;
+          const extractedJson = JSON.parse(jsonString);
+          console.log('Parsed extracted JSON:', extractedJson);
 
-            // Create a more natural response message
-            if (extractedJson.results.length > 0) {
-              const resultCount = extractedJson.total_found || extractedJson.results.length;
+          // Handle the results structure you showed
+          if (extractedJson.results && Array.isArray(extractedJson.results)) {
+            const resultCount = extractedJson.total_found || extractedJson.results.length;
 
-              // Determine what type of data we're showing
-              const firstResult = extractedJson.results[0];
-              let dataType = 'entries';
-
-              if (firstResult.instagram && !firstResult.email && !firstResult.telegram) {
-                dataType = 'Instagram accounts';
-              } else if (firstResult.email && !firstResult.instagram && !firstResult.telegram) {
-                dataType = 'email addresses';
-              } else if (firstResult.telegram && !firstResult.instagram && !firstResult.email) {
-                dataType = 'Telegram IDs';
-              }
-
-              content = `Here are ${resultCount} ${dataType} I found:`;
-            } else {
-              content = 'No matching entries found.';
-            }
-          } else {
-            // For other JSON structures, just show a generic message
-            content = content.replace(/```json[\s\S]*?```/g, '').trim() || 'Here are the results:';
-            structuredData = extractedJson;
+            return NextResponse.json({
+              content: `Found ${resultCount} results:`,
+              data: {
+                results: extractedJson.results,
+                total_found: resultCount,
+              },
+            });
           }
+
+          // Handle other JSON structures
+          return NextResponse.json({
+            content: 'Here are the results:',
+            data: extractedJson,
+          });
         } catch (jsonError) {
           console.error('Error parsing extracted JSON:', jsonError);
-          // Remove the JSON block and show the remaining text
-          content = content.replace(/```json[\s\S]*?```/g, '').trim();
+          // If JSON parsing fails, just show the text without code blocks
+          const cleanContent = content.replace(/```json[\s\S]*?```/g, '').trim();
+          return NextResponse.json({
+            content: cleanContent || parsedData.output,
+          });
         }
+      } else {
+        // No JSON code block found, return the output as is
+        return NextResponse.json({
+          content: parsedData.output,
+        });
       }
+    }
 
+    // Handle other response structures
+    if (parsedData.results) {
       return NextResponse.json({
-        content: content || 'I processed your request.',
-        data: structuredData,
+        content: `Found ${parsedData.results.length} results:`,
+        data: parsedData,
       });
     }
 
-    // Handle direct structured responses
-    if (parsedData.results || parsedData.entries) {
-      const results = parsedData.results || parsedData.entries;
-      const count = parsedData.total_found || results.length;
-
-      return NextResponse.json({
-        content: `Found ${count} entries:`,
-        data: {
-          results: results,
-          total_found: count,
-        },
-      });
-    }
-
-    // Handle simple text responses
     if (parsedData.content || parsedData.message) {
       return NextResponse.json({
         content: parsedData.content || parsedData.message,
       });
     }
 
-    // Fallback for other response structures
+    // Fallback - return whatever we got
     return NextResponse.json({
       content: JSON.stringify(parsedData, null, 2),
     });
