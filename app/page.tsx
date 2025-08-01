@@ -49,7 +49,7 @@ export default function ChatInterface() {
       id: '1',
       type: 'assistant',
       content:
-        'Hello! I can help you query Instagram entries from your APPICS bounty campaign data. You can ask me to:\n\n• Show Instagram accounts and links\n• Get email addresses or Telegram usernames\n• Sort entries by date chronologically\n• Find who submitted first/last\n• Search by country, language, or category\n• Get statistics and analytics\n• Or ask me anything else about the campaign data!',
+        'Hello! I can help you query Instagram entries from your bounty campaign data. You can ask me to:\n\n• Show Instagram accounts and links\n• Get email addresses or Telegram usernames\n• Sort entries by date chronologically\n• Find who submitted first/last\n• Search by country, language, or category\n• Get statistics and analytics\n• Or ask me anything else about the campaign data!',
       timestamp: new Date(),
     },
   ]);
@@ -271,7 +271,7 @@ export default function ChatInterface() {
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b mb-6">
           <div>
-            <h1 className="text-xl font-light text-gray-800">APPICS Instagram Assistant</h1>
+            <h1 className="text-xl font-light text-gray-800"> Instagram Assistant</h1>
             <p className="text-sm text-gray-500">Bounty Campaign Data Helper</p>
           </div>
           <Button variant="outline" className="rounded-full bg-transparent">
