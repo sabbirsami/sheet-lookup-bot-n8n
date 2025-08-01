@@ -195,7 +195,7 @@ export default function ChatInterface() {
                         </span>
                       )}
                     </div>
-                    <div className="space-y-2  overflow-y-auto">
+                    <div className="space-y-2 max-h-60 overflow-y-auto">
                       {message.data.results.map((entry, index) => renderEntryCard(entry, index))}
                     </div>
                   </div>
@@ -226,6 +226,52 @@ export default function ChatInterface() {
         {/* Input Area */}
         <div className="p-6">
           <div className="relative">
+            {/* Suggested Messages */}
+            <div className="absolute -top-12 left-0 right-0 flex gap-2 overflow-x-auto scrollbar-hide pb-2">
+              <button
+                onClick={() => setInput('Show all Instagram links')}
+                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                disabled={isLoading}
+              >
+                📸 Instagram links
+              </button>
+              <button
+                onClick={() => setInput('Sort by date')}
+                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                disabled={isLoading}
+              >
+                📅 Sort by date
+              </button>
+              <button
+                onClick={() => setInput('Get all email addresses')}
+                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                disabled={isLoading}
+              >
+                📧 Email addresses
+              </button>
+              <button
+                onClick={() => setInput('Show Telegram IDs')}
+                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                disabled={isLoading}
+              >
+                💬 Telegram IDs
+              </button>
+              <button
+                onClick={() => setInput('Who submitted first?')}
+                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                disabled={isLoading}
+              >
+                🏆 First submission
+              </button>
+              <button
+                onClick={() => setInput('Count total entries')}
+                className="flex-shrink-0 px-3 py-1 text-xs bg-white/80 backdrop-blur-sm border border-gray-200 rounded-full text-gray-600 hover:bg-white hover:text-gray-800 transition-colors"
+                disabled={isLoading}
+              >
+                🔢 Total count
+              </button>
+            </div>
+
             <Input
               value={input}
               onChange={(e) => setInput(e.target.value)}
